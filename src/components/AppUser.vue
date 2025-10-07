@@ -95,8 +95,6 @@ const emit = defineEmits<{
   removeUser: [];
 }>();
 
-
-
 const validateField = (prop: string) => {
   formRef.value?.validateField(prop).catch(() => {});
   checkAndUpload();
@@ -163,6 +161,10 @@ const checkAndUpload = () => {
     &.login-expanded {
       width: 304px; // 150px + 4px gap + 150px
     }
+  }
+
+  .el-icon {
+    cursor: pointer;
   }
 }
 </style>
