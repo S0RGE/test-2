@@ -16,15 +16,17 @@ export const useUserStore = defineStore("user", () => {
 
   const users = ref<IUser[]>(loadUsersFromStorage());
 
+  // Auto-save to localStorage when users change
+  watch(users, (newUsers) => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(newUsers));
+  }, { deep: true });
+
   const addUser = (user: IUser) => {
     users.value.push(user);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(users.value));
   };
 
   const removeUser = (user: IUser) => {
-    console.log("🚀 ~ removeUser ~ user:", user);
     users.value = users.value.filter((u) => u.login !== user.login);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(users.value));
   };
 
   return { users, addUser, removeUser };

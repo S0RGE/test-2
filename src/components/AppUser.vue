@@ -45,7 +45,7 @@
         @blur="validateField('password')"
       />
     </el-form-item>
-    <el-icon @click="removeUser"><Delete /></el-icon>
+    <el-icon @click="() => emit('removeUser')"><Delete /></el-icon>
   </el-form>
 </template>
 
@@ -95,9 +95,7 @@ const emit = defineEmits<{
   removeUser: [];
 }>();
 
-const removeUser = () => {
-  emit("removeUser");
-};
+
 
 const validateField = (prop: string) => {
   formRef.value?.validateField(prop).catch(() => {});

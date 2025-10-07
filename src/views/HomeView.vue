@@ -13,7 +13,7 @@ const userStore = useUserStore();
 
 const { addUser, removeUser } = userStore;
 const { users } = storeToRefs(userStore);
-const newUsers = ref<(IUserWithStringMark & { id: string })[]>([]);
+const newUsers = ref<IUserWithStringMark[]>([]);
 
 const prepareUserToUpload = (user: IUserWithStringMark): IUser => {
   const mark = user.mark?.split(";");
@@ -28,34 +28,23 @@ const removeUserFromStore = (user: IUserWithStringMark) => {
 };
 
 const userToShow = computed(() => [
-  ...users.value.map((user) => ({ ...user, mark: user.mark?.join(";"), id: user.login || Date.now().toString() })),
+  ...users.value.map((user) => ({ ...user, mark: user.mark?.join(";") })),
   ...newUsers.value
-].map(({ id, ...user }) => user));
+]);
 
-const uploadUser = (user: IUserWithStringMark, userIndex: number) => {
+const uploadUser = (user: IUserWithStringMark) => {
   if (!user.login) return;
 
   const preparedUser = prepareUserToUpload(user);
   
-  // Check if this is a new user by finding it in the combined array
-  const allUsers = [
-    ...users.value.map((user) => ({ ...user, mark: user.mark?.join(";"), id: user.login || Date.now().toString() })),
-    ...newUsers.value
-  ];
-  
-  const currentUser = allUsers[userIndex];
-  if (currentUser && 'id' in currentUser && currentUser.id && !users.value.find(u => u.login === currentUser.id)) {
-    // This is a new user, remove from newUsers
-    const newUserIndex = newUsers.value.findIndex(u => u.id === currentUser.id);
-    if (newUserIndex >= 0) {
-      newUsers.value.splice(newUserIndex, 1);
-    }
+  // Remove from newUsers if it exists there
+  const newUserIndex = newUsers.value.findIndex(u => u.login === user.login);
+  if (newUserIndex >= 0) {
+    newUsers.value.splice(newUserIndex, 1);
   }
   
   // Add or update in store
-  const existingIndex = users.value.findIndex(
-    (u) => u.login === preparedUser.login
-  );
+  const existingIndex = users.value.findIndex(u => u.login === preparedUser.login);
   if (existingIndex >= 0) {
     users.value[existingIndex] = preparedUser;
   } else {
@@ -69,7 +58,6 @@ const addBlankUser = () => {
     password: null,
     recordType: RECORD_TYPE.LDAP,
     mark: "",
-    id: Date.now().toString() + Math.random().toString(36),
   });
 };
 </script>
@@ -84,15 +72,11 @@ const addBlankUser = () => {
         v-for="(user, index) in userToShow"
         :key="index"
         :user="user"
-        @upload="(userData) => uploadUser(userData, index)"
+        @upload="uploadUser"
         @remove-user="() => removeUserFromStore(user)"
       />
     </div>
-    <div>
-      <pre>
-        userToShow: {{ userToShow }}
-      </pre>
-    </div>
+
   </main>
 </template>
 
